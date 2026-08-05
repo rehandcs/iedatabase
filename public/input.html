@@ -6,6 +6,10 @@
     <title>Input Data Produksi - IE Database</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- Tambahan Library untuk membaca Excel (SheetJS) dan SweetAlert2 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -95,7 +99,7 @@
                 <input type="file" id="excelFile" accept=".xlsx, .xls, .csv" 
                     class="mx-auto block w-full max-w-sm text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-600 file:text-white hover:file:bg-orange-700 transition-colors cursor-pointer">
                 <p class="text-xs text-gray-500 mt-4">Format kolom: Model, Area, Sub Area, Process, Cycle Time, Allowance, Target/hour, Machine Type</p>
-                <button type="button" class="mt-6 w-full max-w-sm mx-auto bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-green-500 flex justify-center items-center">
+                <button type="button" id="btnUploadExcel" class="mt-6 w-full max-w-sm mx-auto bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-green-500 flex justify-center items-center">
                     Upload & Simpan Data
                 </button>
             </div>
@@ -310,6 +314,90 @@
                 btnSubmit.disabled = false;
                 btnSubmit.classList.remove('opacity-75', 'cursor-not-allowed');
             }
+        });
+
+        // --- LOGIKA UPLOAD EXCEL ---
+        document.getElementById('btnUploadExcel').addEventListener('click', async function() {
+            const fileInput = document.getElementById('excelFile');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                Swal.fire('Peringatan!', 'Silakan pilih file Excel terlebih dahulu.', 'warning');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = async function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                // Konversi Excel ke JSON
+                const excelData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
+
+                if (excelData.length === 0) {
+                    Swal.fire('Peringatan!', 'File Excel kosong atau format tidak sesuai.', 'warning');
+                    return;
+                }
+
+                // Tampilkan SweetAlert Loading
+                Swal.fire({
+                    title: 'Memproses Data...',
+                    text: `Menyimpan ${excelData.length} baris data ke database. Mohon tunggu...`,
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                let successCount = 0;
+                let failCount = 0;
+
+                // Looping untuk mengirim setiap baris ke Backend
+                for (let i = 0; i < excelData.length; i++) {
+                    const row = excelData[i];
+                    
+                    const formData = {
+                        model: row['Model'] || '',
+                        area: row['Area'] || '',
+                        subArea: row['Sub Area'] || '',
+                        process: row['Process'] || '',
+                        machineType: row['Machine Type'] || '',
+                        ct: parseFloat(row['Cycle Time']) || 0,
+                        allowance: parseFloat(row['Allowance']) || 15,
+                        targetHour: parseFloat(row['Target/hour']) || 240
+                    };
+
+                    try {
+                        const response = await fetch('/api/produksi', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'User-ID': 'KARYAWAN-001'
+                            },
+                            body: JSON.stringify(formData)
+                        });
+
+                        if (response.ok) {
+                            successCount++;
+                        } else {
+                            failCount++;
+                        }
+                    } catch (error) {
+                        failCount++;
+                    }
+                }
+
+                // Tutup Loading & Tampilkan Pesan Hasil Eksekusi
+                if (failCount === 0) {
+                    Swal.fire('Berhasil!', `${successCount} data berhasil disimpan ke database.`, 'success');
+                    fileInput.value = ''; // Reset input
+                } else {
+                    Swal.fire('Selesai dengan Catatan', `${successCount} berhasil, ${failCount} gagal (Mungkin ada duplikat mesin atau error koneksi).`, 'info');
+                }
+            };
+            
+            reader.readAsArrayBuffer(file);
         });
     </script>
 </body>
