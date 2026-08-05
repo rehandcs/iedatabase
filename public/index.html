@@ -257,6 +257,7 @@
                                         <tr class="bg-gray-50 text-gray-600 text-[11px] uppercase tracking-wider whitespace-nowrap">
                                             <th class="px-4 py-3 border-b border-gray-200 font-semibold bg-gray-50">Model</th>
                                             <th class="px-4 py-3 border-b border-gray-200 font-semibold bg-gray-50">Area</th>
+                                            <th class="px-4 py-3 border-b border-gray-200 font-semibold bg-gray-50">Sub Area</th>
                                             <th class="px-4 py-3 border-b border-gray-200 font-semibold bg-gray-50">Process</th>
                                             <th class="px-4 py-3 border-b border-gray-200 font-semibold text-right bg-gray-50">Cycle Time</th>
                                             <th class="px-4 py-3 border-b border-gray-200 font-semibold text-right bg-gray-50">Allowance</th>
@@ -439,7 +440,7 @@
         // --- 4. FETCH DATA DARI DATABASE UNTUK TABEL ---
 async function muatDataTabel() {
     const tableBody = document.getElementById('tableBody');
-    tableBody.innerHTML = '<tr><td colspan="11" class="text-center py-4 text-gray-500">Memuat data dari database...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="12" class="text-center py-4 text-gray-500">Memuat data dari database...</td></tr>';
 
     try {
         const response = await fetch('/api/produksi', {
@@ -455,7 +456,7 @@ async function muatDataTabel() {
         tableBody.innerHTML = ''; // Bersihkan loading
 
         if (data.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="11" class="text-center py-4 text-gray-500">Belum ada data di database.</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="12" class="text-center py-4 text-gray-500">Belum ada data di database.</td></tr>';
             return;
         }
 
@@ -488,6 +489,7 @@ async function muatDataTabel() {
                 <tr class="hover:bg-gray-50 transition-colors">
                     <td class="px-4 py-3 text-xs text-gray-800 whitespace-nowrap">${item.model || ''}</td>
                     <td class="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">${item.area || ''}</td>
+                    <td class="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">${item.subArea || ''}</td>
                     <td class="px-4 py-3 text-xs text-gray-600 min-w-[200px]">${item.process || ''}</td>
                     <td class="px-4 py-3 text-xs text-right text-gray-800 font-semibold">${ct.toFixed(2)}</td>
                     <td class="px-4 py-3 text-xs text-right text-gray-600">${allowanceRaw}%</td>
