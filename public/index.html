@@ -216,7 +216,7 @@
                                 </svg>
                             </div>
                             <p class="text-sm text-gray-500 font-medium mb-1">Direct Workers</p>
-                            <h3 class="text-2xl font-bold text-gray-800">x <span class="text-sm font-normal text-gray-500">Ops</span></h3>
+                            <h3 id="valDirectWorkers" class="text-2xl font-bold text-gray-800">0 <span class="text-sm font-normal text-gray-500">Ops</span></h3>
                         </div>
                         
                         <!-- Card 2 -->
@@ -227,7 +227,7 @@
                                 </svg>
                             </div>
                             <p class="text-sm text-gray-500 font-medium mb-1">Target PPH</p>
-                            <h3 class="text-2xl font-bold text-gray-800">x</h3>
+                            <h3 id="valTargetPPH" class="text-2xl font-bold text-gray-800">0</h3>
                         </div>
                         
                         <!-- Card 3 -->
@@ -238,7 +238,7 @@
                                 </svg>
                             </div>
                             <p class="text-sm text-gray-500 font-medium mb-1">TCT / Pair</p>
-                            <h3 class="text-2xl font-bold text-gray-800">x <span class="text-sm font-normal text-gray-500">Sec</span></h3>
+                            <h3 id="valTCTPair" class="text-2xl font-bold text-gray-800">0 <span class="text-sm font-normal text-gray-500">Sec</span></h3>
                         </div>
                     </div>
 
@@ -460,6 +460,9 @@ async function muatDataTabel() {
             return;
         }
 
+        let totalDirectWorkers = 0;
+        let lastTargetHour = 0;
+
         // Looping data dan masukkan ke tabel
         data.forEach(item => {
             let ct = parseFloat(item.ct) || 0;
@@ -470,6 +473,9 @@ async function muatDataTabel() {
             let targetHourInput = parseFloat(document.getElementById('targetQty').value);
             let targetHour = parseFloat(item.targetHour) || (!isNaN(targetHourInput) ? targetHourInput : 240);
             
+            // Tangkap targetHour untuk kalkulasi Summary
+            lastTargetHour = targetHour;
+
             let theoriticalMp = targetHour > 0 ? ctAllow / (3600 / targetHour) : 0;
             
             let balancedMp = 'NA';
@@ -482,6 +488,11 @@ async function muatDataTabel() {
                 }
             }
             
+            // Hitung akumulasi Direct Workers (Jumlah Balanced Manpower)
+            if (balancedMp !== 'NA') {
+                totalDirectWorkers += balancedMp;
+            }
+
             let machineType = item.machineType || item.machine || '';
             let machineQty = balancedMp !== 'NA' ? balancedMp : 0;
 
@@ -503,6 +514,14 @@ async function muatDataTabel() {
             `;
             tableBody.innerHTML += row;
         });
+
+        // --- UPDATE SUMMARY CARDS ---
+        let tctPair = lastTargetHour > 0 ? (3600 / lastTargetHour).toFixed(2) : 0;
+        let targetPPH = totalDirectWorkers > 0 ? (lastTargetHour / totalDirectWorkers).toFixed(2) : 0;
+
+        document.getElementById('valDirectWorkers').innerHTML = `${totalDirectWorkers} <span class="text-sm font-normal text-gray-500">Ops</span>`;
+        document.getElementById('valTargetPPH').innerHTML = `${targetPPH}`;
+        document.getElementById('valTCTPair').innerHTML = `${tctPair} <span class="text-sm font-normal text-gray-500">Sec</span>`;
 
     } catch (error) {
         console.error('Error:', error);
