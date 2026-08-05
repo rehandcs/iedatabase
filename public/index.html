@@ -51,40 +51,8 @@
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans min-h-screen py-6 px-4 md:px-6">
 
-    <!-- SECTION LOGIN (Khusus Index) -->
-    <div id="loginSection" class="w-full max-w-md mx-auto bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-gray-200 mt-10 md:mt-20">
-        <div class="mb-6 text-center">
-            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-orange-100 mb-4">
-                <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-            </div>
-            <h2 class="text-2xl font-bold text-gray-900">Akses Admin</h2>
-            <p class="text-gray-500 text-sm mt-1">Silakan login untuk mengakses Dashboard.</p>
-        </div>
-        
-        <form id="formLogin" class="space-y-4">
-            <div>
-                <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                <input type="text" id="username" required placeholder="Masukkan username" 
-                    class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50 focus:bg-white outline-none transition-colors">
-            </div>
-            <div>
-                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                <input type="password" id="password" required placeholder="Masukkan password" 
-                    class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50 focus:bg-white outline-none transition-colors">
-            </div>
-            
-            <div id="loginError" class="hidden text-red-600 text-sm text-center font-medium bg-red-50 p-2 rounded-lg border border-red-100">
-                Username atau Password salah!
-            </div>
-
-            <button type="submit" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-medium py-3 px-4 rounded-lg transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 mt-2">
-                Masuk
-            </button>
-        </form>
-    </div>
-
-    <!-- Wrapper Full Width (Sembunyikan default sampai login) -->
-    <div id="mainContent" class="w-full mx-auto hidden">
+    <!-- Wrapper Full Width -->
+    <div class="w-full mx-auto">
         
         <!-- SATU CONTAINER UTAMA (Background Putih) -->
         <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200">
@@ -95,9 +63,6 @@
                     <h1 class="text-2xl font-bold text-gray-900">IE Database</h1>
                     <p class="text-gray-500 mt-1">Digitalization CSB - PT. Can Sports Industrial Indonesia</p>
                 </div>
-                <button onclick="logout()" class="text-sm text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-md font-medium transition-colors border border-transparent hover:border-red-100">
-                    Logout
-                </button>
             </div>
 
             <!-- Tab Navigasi (Diperkecil ukurannya: text-sm, space-x-6, pb-2) -->
@@ -572,43 +537,8 @@ async function muatDataTabel() {
     }
 }
 
-// --- LOGIKA LOGIN & PERSISTENCE ---
-        document.addEventListener('DOMContentLoaded', function() {
-            // Cek apakah user sudah login sebelumnya
-            if (localStorage.getItem('isLoggedIn') === 'true') {
-                document.getElementById('loginSection').classList.add('hidden');
-                document.getElementById('mainContent').classList.remove('hidden');
-                muatDataTabel(); // Load data hanya jika sudah login
-            }
-        });
-
-        document.getElementById('formLogin')?.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
-            const errorBox = document.getElementById('loginError');
-
-            // Kredensial Sama
-            if (user === 'Admin123Admin123' && pass === 'Admin123Admin123') {
-                localStorage.setItem('isLoggedIn', 'true');
-                document.getElementById('loginSection').classList.add('hidden');
-                document.getElementById('mainContent').classList.remove('hidden');
-                errorBox.classList.add('hidden');
-                
-                document.getElementById('username').value = '';
-                document.getElementById('password').value = '';
-                
-                muatDataTabel(); // Load tabel setelah sukses
-            } else {
-                errorBox.classList.remove('hidden');
-            }
-        });
-
-        function logout() {
-            localStorage.removeItem('isLoggedIn');
-            document.getElementById('mainContent').classList.add('hidden');
-            document.getElementById('loginSection').classList.remove('hidden');
-        }
+// Jalankan fungsi saat halaman pertama kali dibuka tanpa perlu login
+        document.addEventListener('DOMContentLoaded', muatDataTabel);
     </script>
 </body>
 </html>
