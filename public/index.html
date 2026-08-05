@@ -51,8 +51,40 @@
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans min-h-screen py-6 px-4 md:px-6">
 
-    <!-- Wrapper Full Width -->
-    <div class="w-full mx-auto">
+    <!-- SECTION LOGIN (Khusus Index) -->
+    <div id="loginSection" class="w-full max-w-md mx-auto bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-gray-200 mt-10 md:mt-20">
+        <div class="mb-6 text-center">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-orange-100 mb-4">
+                <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900">Akses Admin</h2>
+            <p class="text-gray-500 text-sm mt-1">Silakan login untuk mengakses Dashboard.</p>
+        </div>
+        
+        <form id="formLogin" class="space-y-4">
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                <input type="text" id="username" required placeholder="Masukkan username" 
+                    class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50 focus:bg-white outline-none transition-colors">
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <input type="password" id="password" required placeholder="Masukkan password" 
+                    class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50 focus:bg-white outline-none transition-colors">
+            </div>
+            
+            <div id="loginError" class="hidden text-red-600 text-sm text-center font-medium bg-red-50 p-2 rounded-lg border border-red-100">
+                Username atau Password salah!
+            </div>
+
+            <button type="submit" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-medium py-3 px-4 rounded-lg transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 mt-2">
+                Masuk
+            </button>
+        </form>
+    </div>
+
+    <!-- Wrapper Full Width (Sembunyikan default sampai login) -->
+    <div id="mainContent" class="w-full mx-auto hidden">
         
         <!-- SATU CONTAINER UTAMA (Background Putih) -->
         <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200">
@@ -63,6 +95,9 @@
                     <h1 class="text-2xl font-bold text-gray-900">IE Database</h1>
                     <p class="text-gray-500 mt-1">Digitalization CSB - PT. Can Sports Industrial Indonesia</p>
                 </div>
+                <button onclick="logout()" class="text-sm text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-md font-medium transition-colors border border-transparent hover:border-red-100">
+                    Logout
+                </button>
             </div>
 
             <!-- Tab Navigasi (Diperkecil ukurannya: text-sm, space-x-6, pb-2) -->
@@ -75,7 +110,7 @@
                     </li>
                     <li>
                         <button onclick="switchTab('tab-cycle', this)" class="tab-btn pb-2 border-b-2 border-transparent text-gray-500 hover:text-gray-800 transition-colors">
-                            Cycle Time Analysis
+                            Yamazumi Chart
                         </button>
                     </li>
                 </ul>
@@ -100,8 +135,9 @@
                         <!-- Input Family model -->
                         <div>
                             <label for="familyModel" class="block text-sm font-medium text-gray-700 mb-1">Family model</label>
-                            <input type="text" id="familyModel" placeholder="Type here..." 
-                                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50 focus:bg-white outline-none transition-colors">
+                            <select id="familyModel" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50 focus:bg-white outline-none transition-colors">
+                                <option value="">Semua Family Model</option>
+                            </select>
                         </div>
 
                         <!-- Input Model -->
@@ -180,30 +216,7 @@
                 <div id="right-panel" class="w-full flex-1 lg:pl-4 h-full flex flex-col overflow-hidden">
                     
                     <!-- Fitur Filter & Download (Selalu Tampil) -->
-                    <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-6 gap-4">
-                        <div class="flex flex-wrap gap-2 w-full xl:w-auto">
-                            <div class="flex items-center text-sm font-medium text-gray-700 mr-2 bg-gray-100 px-3 py-1.5 rounded-md">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                                </svg>
-                                Filter
-                            </div>
-                            <select class="text-sm border border-gray-300 rounded-md focus:border-orange-500 focus:ring-1 focus:ring-orange-500 px-3 py-1.5 bg-white outline-none cursor-pointer">
-                                <option>Semua Line</option>
-                                <option>Line 1</option>
-                                <option>Line 2</option>
-                                <option>Line 3</option>
-                            </select>
-                            <select class="text-sm border border-gray-300 rounded-md focus:border-orange-500 focus:ring-1 focus:ring-orange-500 px-3 py-1.5 bg-white outline-none cursor-pointer">
-                                <option>Hari Ini</option>
-                                <option>Minggu Ini</option>
-                                <option>Bulan Ini</option>
-                            </select>
-                            <button class="bg-gray-800 text-white hover:bg-gray-900 px-4 py-1.5 rounded-md text-sm font-medium transition-colors">
-                                Terapkan
-                            </button>
-                        </div>
-                        
+                    <div class="flex flex-col xl:flex-row justify-end items-start xl:items-center mb-6 gap-4">
                         <!-- Tombol Aksi -->
                         <button type="button" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center shadow-sm w-full xl:w-auto justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -290,12 +303,12 @@
                         <!-- Barchart Area -->
                         <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex-grow-0">
                             <div class="flex justify-between items-center mb-4">
-                                <h3 class="text-lg font-semibold text-gray-800">Cycle Time Analysis</h3>
-                                <div class="inline-flex items-center bg-red-50 text-red-700 px-3 py-1 rounded-md text-sm font-medium border border-red-100">
+                                <h3 class="text-lg font-semibold text-gray-800">Yamazumi Chart tiap Mesin</h3>
+                                <div id="targetTTBadge" class="inline-flex items-center bg-red-50 text-red-700 px-3 py-1 rounded-md text-sm font-medium border border-red-100">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                                     </svg>
-                                    Target TT: 14.69 sec (3600 / 245)
+                                    Target TT: 0 sec
                                 </div>
                             </div>
                             
@@ -379,19 +392,39 @@
             clickedBtn.classList.add('border-orange-500', 'text-orange-500');
         }
 
-        // --- 3. RENDER CHART JS ---
-        document.addEventListener('DOMContentLoaded', function() {
+        // --- 3. RENDER YAMAZUMI CHART JS ---
+        let yamazumiChart;
+        
+        function renderYamazumi(dataArr, targetTT, lastTargetHour) {
             const ctx = document.getElementById('cycleTimeChart').getContext('2d');
             
-            new Chart(ctx, {
+            // Menggabungkan data Cycle Time (CT + Allowance) berdasarkan Machine Type
+            const machineData = {};
+            dataArr.forEach(item => {
+                let m = item.machineType || item.machine || 'Manual / Unknown';
+                let ct = parseFloat(item.ct) || 0;
+                let allow = item.allowance !== undefined ? parseFloat(item.allowance) : 15;
+                let ctAllow = ct + (ct * (allow/100));
+                
+                if(!machineData[m]) machineData[m] = 0;
+                machineData[m] += ctAllow; 
+            });
+            
+            const labels = Object.keys(machineData);
+            const dataVals = Object.values(machineData);
+            const targetLine = Array(labels.length).fill(targetTT);
+
+            if (yamazumiChart) yamazumiChart.destroy();
+            
+            yamazumiChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['OP 10', 'OP 20', 'OP 100'],
+                    labels: labels,
                     datasets: [
                         {
                             type: 'line',
-                            label: 'Target TT (14.69s)',
-                            data: [14.69, 14.69, 14.69],
+                            label: 'Target TT (' + targetTT.toFixed(2) + 's)',
+                            data: targetLine,
                             borderColor: '#ef4444', 
                             borderWidth: 2,
                             borderDash: [5, 5], 
@@ -401,8 +434,8 @@
                         },
                         {
                             type: 'bar',
-                            label: 'Cycle Time Aktual (Sec)',
-                            data: [12.5, 15.2, 13.4],
+                            label: 'Total Cycle Time per Mesin (Sec)',
+                            data: dataVals,
                             backgroundColor: '#f97316', 
                             borderRadius: 4,
                             barPercentage: 0.6
@@ -413,36 +446,24 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                usePointStyle: true,
-                                boxWidth: 8,
-                                font: { size: 12 }
-                            }
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                        }
+                        legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: { size: 12 } } },
+                        tooltip: { mode: 'index', intersect: false }
                     },
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Waktu (Detik)',
-                                font: { size: 11 }
-                            },
-                            grid: { borderDash: [2, 2] }
-                        },
-                        x: {
-                            grid: { display: false } 
-                        }
+                        y: { beginAtZero: true, title: { display: true, text: 'Waktu (Detik)', font: { size: 11 } }, grid: { borderDash: [2, 2] } },
+                        x: { grid: { display: false } }
                     }
                 }
             });
-        });
+
+            // Update Badge Header
+            document.getElementById('targetTTBadge').innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Target TT: ${targetTT.toFixed(2)} sec (3600 / ${lastTargetHour})
+            `;
+        }
 
         // --- 4. FETCH DATA DARI DATABASE UNTUK TABEL ---
 async function muatDataTabel() {
@@ -469,9 +490,11 @@ async function muatDataTabel() {
 
         let totalDirectWorkers = 0;
         let lastTargetHour = 0;
+        let familyModels = new Set();
 
         // Looping data dan masukkan ke tabel
         data.forEach(item => {
+            if (item.model) familyModels.add(item.model);
             let ct = parseFloat(item.ct) || 0;
             let allowanceRaw = item.allowance !== undefined ? parseFloat(item.allowance) : 15;
             let allowance = allowanceRaw / 100;
@@ -524,11 +547,24 @@ async function muatDataTabel() {
 
         // --- UPDATE SUMMARY CARDS ---
         let tctPair = lastTargetHour > 0 ? (3600 / lastTargetHour).toFixed(2) : 0;
+        let tctPairNum = lastTargetHour > 0 ? (3600 / lastTargetHour) : 0;
         let targetPPH = totalDirectWorkers > 0 ? (lastTargetHour / totalDirectWorkers).toFixed(2) : 0;
 
         document.getElementById('valDirectWorkers').innerHTML = `${totalDirectWorkers} <span class="text-sm font-normal text-gray-500">Ops</span>`;
         document.getElementById('valTargetPPH').innerHTML = `${targetPPH}`;
         document.getElementById('valTCTPair').innerHTML = `${tctPair} <span class="text-sm font-normal text-gray-500">Sec</span>`;
+
+        // Update Dropdown Family Model
+        const familyModelSelect = document.getElementById('familyModel');
+        if (familyModelSelect) {
+            familyModelSelect.innerHTML = '<option value="">Semua Family Model</option>';
+            familyModels.forEach(m => {
+                familyModelSelect.innerHTML += `<option value="${m}">${m}</option>`;
+            });
+        }
+
+        // Render Yamazumi Chart Dinamis
+        renderYamazumi(data, tctPairNum, lastTargetHour);
 
     } catch (error) {
         console.error('Error:', error);
@@ -536,8 +572,43 @@ async function muatDataTabel() {
     }
 }
 
-// Jalankan fungsi saat halaman pertama kali dibuka
-document.addEventListener('DOMContentLoaded', muatDataTabel);
+// --- LOGIKA LOGIN & PERSISTENCE ---
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cek apakah user sudah login sebelumnya
+            if (localStorage.getItem('isLoggedIn') === 'true') {
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+                muatDataTabel(); // Load data hanya jika sudah login
+            }
+        });
+
+        document.getElementById('formLogin')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const errorBox = document.getElementById('loginError');
+
+            // Kredensial Sama
+            if (user === 'Admin123Admin123' && pass === 'Admin123Admin123') {
+                localStorage.setItem('isLoggedIn', 'true');
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+                errorBox.classList.add('hidden');
+                
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+                
+                muatDataTabel(); // Load tabel setelah sukses
+            } else {
+                errorBox.classList.remove('hidden');
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            document.getElementById('mainContent').classList.add('hidden');
+            document.getElementById('loginSection').classList.remove('hidden');
+        }
     </script>
 </body>
 </html>
