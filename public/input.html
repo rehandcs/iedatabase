@@ -317,6 +317,7 @@
         });
 
         // --- LOGIKA UPLOAD EXCEL ---
+        // --- LOGIKA UPLOAD EXCEL ---
         document.getElementById('btnUploadExcel').addEventListener('click', async function() {
             const fileInput = document.getElementById('excelFile');
             if (!fileInput.files || fileInput.files.length === 0) {
@@ -328,72 +329,93 @@
             const reader = new FileReader();
 
             reader.onload = async function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, {type: 'array'});
-                const firstSheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[firstSheetName];
-                // Konversi Excel ke JSON
-                const excelData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
-
-                if (excelData.length === 0) {
-                    Swal.fire('Peringatan!', 'File Excel kosong atau format tidak sesuai.', 'warning');
-                    return;
-                }
-
-                // Tampilkan SweetAlert Loading
-                Swal.fire({
-                    title: 'Memproses Data...',
-                    text: `Menyimpan ${excelData.length} baris data ke database. Mohon tunggu...`,
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-
-                let successCount = 0;
-                let failCount = 0;
-
-                // Looping untuk mengirim setiap baris ke Backend
-                for (let i = 0; i < excelData.length; i++) {
-                    const row = excelData[i];
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
                     
-                    const formData = {
-                        model: row['Model'] || '',
-                        area: row['Area'] || '',
-                        subArea: row['Sub Area'] || '',
-                        process: row['Process'] || '',
-                        machineType: row['Machine Type'] || '',
-                        ct: parseFloat(row['Cycle Time']) || 0,
-                        allowance: parseFloat(row['Allowance']) || 15,
-                        targetHour: parseFloat(row['Target/hour']) || 240
-                    };
+                    // Ambil data mentah
+                    const rawData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
+                    
+                    // Filter baris yang kosong (Mencegah hang akibat ribuan baris kosong yang terbaca)
+                    const excelData = rawData.filter(row => row['Model'] || row['Machine Type'] || row['Process']);
 
-                    try {
-                        const response = await fetch('/api/produksi', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'User-ID': 'KARYAWAN-001'
-                            },
-                            body: JSON.stringify(formData)
+                    if (excelData.length === 0) {
+                        Swal.fire('Peringatan!', 'File Excel kosong atau format tidak sesuai.', 'warning');
+                        return;
+                    }
+
+                    // Tampilkan SweetAlert Loading dengan Indikator Progress
+                    Swal.fire({
+                        title: 'Memproses Data...',
+                        html: `Menyiapkan <b>${excelData.length}</b> baris data...`,
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    let successCount = 0;
+                    let failCount = 0;
+
+                    // Looping untuk mengirim setiap baris ke Backend
+                    for (let i = 0; i < excelData.length; i++) {
+                        // Update UI Progress Text (Biar tidak terlihat macet)
+                        Swal.update({
+                            html: `Menyimpan baris ke-<b>${i + 1}</b> dari ${excelData.length}...`
                         });
 
-                        if (response.ok) {
-                            successCount++;
-                        } else {
+                        const row = excelData[i];
+                        
+                        // Normalisasi nilai Allowance (Misal di excel 0.15 akan otomatis dikali 100 jadi 15)
+                        let allowVal = parseFloat(row['Allowance']);
+                        if (!isNaN(allowVal) && allowVal < 1) allowVal = allowVal * 100;
+
+                        const formData = {
+                            model: row['Model'] || '',
+                            area: row['Area'] || '',
+                            subArea: row['Sub Area'] || '',
+                            process: row['Process'] || '',
+                            machineType: row['Machine Type'] || '',
+                            ct: parseFloat(row['Cycle Time']) || 0,
+                            allowance: allowVal || 15,
+                            targetHour: parseFloat(row['Target/hour']) || 240
+                        };
+
+                        try {
+                            const response = await fetch('/api/produksi', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'User-ID': 'KARYAWAN-001'
+                                },
+                                body: JSON.stringify(formData)
+                            });
+
+                            if (response.ok) {
+                                successCount++;
+                            } else {
+                                // Tampilkan pesan gagal dari backend di console inspect element
+                                console.warn(`Baris ${i+1} gagal:`, await response.text());
+                                failCount++;
+                            }
+                        } catch (error) {
+                            console.error(`Error koneksi di baris ${i+1}:`, error);
                             failCount++;
                         }
-                    } catch (error) {
-                        failCount++;
                     }
-                }
 
-                // Tutup Loading & Tampilkan Pesan Hasil Eksekusi
-                if (failCount === 0) {
-                    Swal.fire('Berhasil!', `${successCount} data berhasil disimpan ke database.`, 'success');
-                    fileInput.value = ''; // Reset input
-                } else {
-                    Swal.fire('Selesai dengan Catatan', `${successCount} berhasil, ${failCount} gagal (Mungkin ada duplikat mesin atau error koneksi).`, 'info');
+                    // Tutup Loading & Tampilkan Pesan Hasil Eksekusi
+                    if (failCount === 0) {
+                        Swal.fire('Berhasil!', `${successCount} data berhasil disimpan ke database.`, 'success');
+                        fileInput.value = ''; // Reset input
+                    } else {
+                        Swal.fire('Selesai dengan Catatan', `${successCount} berhasil, ${failCount} gagal. Silakan buka fitur (Inspect -> tab Console) di browser untuk melihat detail error.`, 'info');
+                    }
+                } catch (err) {
+                    console.error("Fatal Error: ", err);
+                    Swal.fire('Error System', 'Terjadi kesalahan saat membaca file Excel.', 'error');
                 }
             };
             
