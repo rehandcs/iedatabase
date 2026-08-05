@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Layout Full Screen - IE Database</title>
+    <!-- Menggunakan Tailwind CSS untuk styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Konfigurasi Tailwind untuk Font -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Tambahkan library Chart.js untuk menampilkan grafik -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Custom scrollbar untuk tabel jika datanya banyak */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        /* Style tambahan agar resizer halus saat di-drag */
+        #resizer:hover, #resizer.active {
+            background-color: #f97316; /* warna orange-500 tailwind */
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen py-6 px-4 md:px-6">
+
+    <!-- Wrapper Full Width -->
+    <div class="w-full mx-auto">
+        
+        <!-- SATU CONTAINER UTAMA (Background Putih) -->
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200">
+            
+            <!-- Header Container -->
+            <div class="mb-8 border-b border-gray-100 pb-5 text-center md:text-left flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">IE Database</h1>
+                    <p class="text-gray-500 mt-1">Digitalization CSB - PT. Can Sports Industrial Indonesia</p>
+                </div>
+            </div>
+
+            <!-- Tab Navigasi (Diperkecil ukurannya: text-sm, space-x-6, pb-2) -->
+            <div class="mb-6 border-b border-gray-100 text-center md:text-left flex justify-center items-center">
+                <ul class="flex space-x-6 text-sm font-medium">
+                    <li>
+                        <button onclick="switchTab('tab-proses', this)" class="tab-btn pb-2 border-b-2 border-orange-500 text-orange-500 hover:text-orange-600 transition-colors">
+                            Proses & Mesin
+                        </button>
+                    </li>
+                    <li>
+                        <button onclick="switchTab('tab-cycle', this)" class="tab-btn pb-2 border-b-2 border-transparent text-gray-500 hover:text-gray-800 transition-colors">
+                            Cycle Time Analysis
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Struktur diubah dari Grid ke Flex agar mendukung Resize -->
+            <div class="flex flex-col lg:flex-row items-stretch">
+
+                <!-- ========================================== -->
+                <!-- KOLOM PERTAMA (KIRI): FORM INPUT           -->
+                <!-- ========================================== -->
+                <!-- Menambahkan ID untuk di-target oleh JavaScript -->
+                <div id="left-panel" class="w-full lg:w-[25%] lg:pr-4 flex-shrink-0 mb-8 lg:mb-0">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-5 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                        Parameter Kalkulasi
+                    </h2>
+                    
+                    <form action="#" method="POST" class="space-y-4">
+                        <!-- Input Family model -->
+                        <div>
+                            <label for="familyModel" class="block text-sm font-medium text-gray-700 mb-1">Family model</label>
+                            <input type="text" id="familyModel" placeholder="Type here..." 
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50 focus:bg-white outline-none transition-colors">
+                        </div>
+
+                        <!-- Input Model -->
+                        <div>
+                            <label for="model" class="block text-sm font-medium text-gray-700 mb-1">Model</label>
+                            <select id="model" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50 focus:bg-white outline-none transition-colors">
+                                <option value="01">Launch 12</option>
+                                <option value="02">Anthem 8</option>
+                                <option value="03">Revel 9</option>
+                                <option value="04">Anthem 9</option>
+                            </select>
+                        </div>
+
+                        <!-- Input Area -->
+                        <div>
+                            <label for="area" class="block text-sm font-medium text-gray-700 mb-1">Area</label>
+                            <select id="area" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50 focus:bg-white outline-none transition-colors">
+                                <option value="cutting">Cutting</option>
+                                <option value="preparation">Preparation</option>
+                                <option value="stiching">Stiching</option>
+                                <option value="stockfit">Stockfit</option>
+                                <option value="assembling">Assembling</option>
+                                <option value="printing">Printing</option>
+                            </select>
+                        </div>
+
+                        <!-- Input Target Qty/Hour -->
+                        <div>
+                            <label for="targetQty" class="block text-sm font-medium text-gray-700 mb-1">Target Qty/Hr</label>
+                            <input type="number" id="targetQty" placeholder="Type here..." 
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50 focus:bg-white outline-none transition-colors">
+                        </div>
+
+                        <!-- Input Allowance -->
+                        <div>
+                            <label for="allowanceInput" class="block text-sm font-medium text-gray-700 mb-1">Allowance (%)</label>
+                            <input type="number" id="allowanceInput" placeholder="15" value="15"
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50 focus:bg-white outline-none transition-colors">
+                        </div>
+
+                        <!-- Tombol Calculate Target -->
+                        <div class="pt-3">
+                            <button type="button" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 flex justify-center items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                                Calculate Target
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- RESIZER (PEMBATAS UNTUK DRAG & DROP UKURAN)-->
+                <!-- ========================================== -->
+                <div id="resizer" class="hidden lg:flex w-[6px] bg-gray-200 cursor-col-resize transition-colors items-center justify-center rounded-full mx-2 flex-shrink-0" title="Geser untuk mengubah ukuran panel">
+                    <!-- Icon grip agar lebih intuitif -->
+                    <div class="w-1 h-6 flex flex-col justify-between">
+                        <div class="w-full h-[2px] bg-gray-400 rounded-full"></div>
+                        <div class="w-full h-[2px] bg-gray-400 rounded-full"></div>
+                        <div class="w-full h-[2px] bg-gray-400 rounded-full"></div>
+                    </div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- KOLOM KEDUA (KANAN): KONTEN TAB            -->
+                <!-- ========================================== -->
+                <!-- overflow-hidden ditambahkan agar tabel/chart tidak hancur saat panel kiri dibesarkan -->
+                <div id="right-panel" class="w-full flex-1 lg:pl-4 h-full flex flex-col overflow-hidden">
+                    
+                    <!-- Fitur Filter & Download (Selalu Tampil) -->
+                    <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-6 gap-4">
+                        <div class="flex flex-wrap gap-2 w-full xl:w-auto">
+                            <div class="flex items-center text-sm font-medium text-gray-700 mr-2 bg-gray-100 px-3 py-1.5 rounded-md">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                </svg>
+                                Filter
+                            </div>
+                            <select class="text-sm border border-gray-300 rounded-md focus:border-orange-500 focus:ring-1 focus:ring-orange-500 px-3 py-1.5 bg-white outline-none cursor-pointer">
+                                <option>Semua Line</option>
+                                <option>Line 1</option>
+                                <option>Line 2</option>
+                                <option>Line 3</option>
+                            </select>
+                            <select class="text-sm border border-gray-300 rounded-md focus:border-orange-500 focus:ring-1 focus:ring-orange-500 px-3 py-1.5 bg-white outline-none cursor-pointer">
+                                <option>Hari Ini</option>
+                                <option>Minggu Ini</option>
+                                <option>Bulan Ini</option>
+                            </select>
+                            <button class="bg-gray-800 text-white hover:bg-gray-900 px-4 py-1.5 rounded-md text-sm font-medium transition-colors">
+                                Terapkan
+                            </button>
+                        </div>
+                        
+                        <!-- Tombol Aksi -->
+                        <button type="button" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center shadow-sm w-full xl:w-auto justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Download Excel
+                        </button>
+                    </div>
+
+                    <!-- Cards Summary (Grid 3 Kolom) - Dikeluarkan dari Tab agar selalu tampil -->
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-6">
+                        <!-- Card 1 -->
+                        <div class="bg-gradient-to-br from-white to-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden">
+                            <div class="absolute top-0 right-0 p-4 opacity-10">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                            </div>
+                            <p class="text-sm text-gray-500 font-medium mb-1">Direct Workers</p>
+                            <h3 class="text-2xl font-bold text-gray-800">x <span class="text-sm font-normal text-gray-500">Ops</span></h3>
+                        </div>
+                        
+                        <!-- Card 2 -->
+                        <div class="bg-gradient-to-br from-white to-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden">
+                            <div class="absolute top-0 right-0 p-4 opacity-10">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                </svg>
+                            </div>
+                            <p class="text-sm text-gray-500 font-medium mb-1">Target PPH</p>
+                            <h3 class="text-2xl font-bold text-gray-800">x</h3>
+                        </div>
+                        
+                        <!-- Card 3 -->
+                        <div class="bg-gradient-to-br from-white to-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden">
+                            <div class="absolute top-0 right-0 p-4 opacity-10">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <p class="text-sm text-gray-500 font-medium mb-1">TCT / Pair</p>
+                            <h3 class="text-2xl font-bold text-gray-800">x <span class="text-sm font-normal text-gray-500">Sec</span></h3>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- TAB 1 CONTENT: Proses & Mesin (Default)    -->
+                    <!-- ========================================== -->
+                    <div id="tab-proses" class="tab-content block">
+                        <!-- Tabel Data Area -->
+                        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Detail Proses & Mesin</h3>
+                            
+                            <!-- Wrapper tabel (ditambah max-h-[400px] dan overflow-y-auto) -->
+                            <div class="overflow-x-auto overflow-y-auto max-h-[400px] rounded-lg border border-gray-200">
+                                <table class="w-full text-left border-collapse min-w-max relative">
+                                    <thead class="sticky top-0 z-10 shadow-sm">
+                                        <tr class="bg-gray-50 text-gray-600 text-[11px] uppercase tracking-wider whitespace-nowrap">
+                                            <th class="px-4 py-3 border-b border-gray-200 font-semibold bg-gray-50">Model</th>
+                                            <th class="px-4 py-3 border-b border-gray-200 font-semibold bg-gray-50">Area</th>
+                                            <th class="px-4 py-3 border-b border-gray-200 font-semibold bg-gray-50">Process</th>
+                                            <th class="px-4 py-3 border-b border-gray-200 font-semibold text-right bg-gray-50">Cycle Time</th>
+                                            <th class="px-4 py-3 border-b border-gray-200 font-semibold text-right bg-gray-50">Allowance</th>
+                                            <th class="px-4 py-3 border-b border-gray-200 font-semibold text-right bg-gray-50">Cycle Time + Allowance 15%</th>
+                                            <th class="px-4 py-3 border-b border-gray-200 font-semibold text-right bg-gray-50">Target/hour</th>
+                                            <th class="px-4 py-3 border-b border-gray-200 font-semibold text-center bg-gray-50">Theoritical Manpower</th>
+                                            <th class="px-4 py-3 border-b border-gray-200 font-semibold text-center bg-gray-50">Balanced Manpower</th>
+                                            <th class="px-4 py-3 border-b border-gray-200 font-semibold bg-gray-50">Machine Type</th>
+                                            <th class="px-4 py-3 border-b border-gray-200 font-semibold text-center bg-gray-50">Machine Qty</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tableBody" class="divide-y divide-gray-200">
+                                        </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- TAB 2 CONTENT: Cycle Time Analysis (Hidden)-->
+                    <!-- ========================================== -->
+                    <div id="tab-cycle" class="tab-content hidden">
+                        <!-- Barchart Area -->
+                        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex-grow-0">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800">Cycle Time Analysis</h3>
+                                <div class="inline-flex items-center bg-red-50 text-red-700 px-3 py-1 rounded-md text-sm font-medium border border-red-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                    Target TT: 14.69 sec (3600 / 245)
+                                </div>
+                            </div>
+                            
+                            <!-- Canvas Chart.js -->
+                            <div class="relative w-full" style="height: 300px;">
+                                <canvas id="cycleTimeChart"></canvas>
+                            </div>
+                        </div>
+                    </div> <!-- Akhir dari Tab 2 -->
+
+                </div> <!-- Akhir dari Kolom Kanan -->
+
+            </div> <!-- Akhir dari Flex -->
+        </div>
+    </div>
+
+    <!-- Script Inisialisasi Chart.js, Resize, & Logika Navigasi Tab -->
+    <script>
+        // --- 1. LOGIKA RESIZER PANEL ---
+        const resizer = document.getElementById('resizer');
+        const leftPanel = document.getElementById('left-panel');
+        let startX, startWidth;
+
+        resizer.addEventListener('mousedown', function(e) {
+            startX = e.clientX;
+            // Dapatkan lebar pixel awal dari panel kiri
+            startWidth = parseInt(document.defaultView.getComputedStyle(leftPanel).width, 10);
+            
+            // Tambahkan class penanda
+            resizer.classList.add('active');
+            
+            // Event listener mousemove pada dokumen penuh
+            document.documentElement.addEventListener('mousemove', doDrag, false);
+            document.documentElement.addEventListener('mouseup', stopDrag, false);
+            
+            // Ubah kursor dan cegah teks terseleksi secara tak sengaja
+            document.body.style.userSelect = 'none';
+            document.body.style.cursor = 'col-resize';
+        });
+
+        function doDrag(e) {
+            let newWidth = startWidth + e.clientX - startX;
+            
+            // Batasi ukuran minimum dan maksimum
+            if (newWidth < 220) newWidth = 220; // Min Lebar (px)
+            if (newWidth > window.innerWidth * 0.5) newWidth = window.innerWidth * 0.5; // Max Setengah Layar
+            
+            leftPanel.style.width = newWidth + 'px';
+            // Menghapus default utility class width dari tailwind agar tidak bentrok
+            leftPanel.classList.remove('lg:w-[25%]'); 
+        }
+
+        function stopDrag(e) {
+            document.documentElement.removeEventListener('mousemove', doDrag, false);
+            document.documentElement.removeEventListener('mouseup', stopDrag, false);
+            
+            resizer.classList.remove('active');
+            document.body.style.userSelect = '';
+            document.body.style.cursor = '';
+            
+            // Triger event 'resize' ke window untuk memastikan Canvas Chart.js beradaptasi dengan ukuran baru
+            window.dispatchEvent(new Event('resize'));
+        }
+
+        // --- 2. LOGIKA NAVIGASI TAB ---
+        function switchTab(tabId, clickedBtn) {
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('block');
+            });
+            
+            document.getElementById(tabId).classList.remove('hidden');
+            document.getElementById(tabId).classList.add('block');
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-orange-500', 'text-orange-500');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            clickedBtn.classList.remove('border-transparent', 'text-gray-500');
+            clickedBtn.classList.add('border-orange-500', 'text-orange-500');
+        }
+
+        // --- 3. RENDER CHART JS ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('cycleTimeChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['OP 10', 'OP 20', 'OP 100'],
+                    datasets: [
+                        {
+                            type: 'line',
+                            label: 'Target TT (14.69s)',
+                            data: [14.69, 14.69, 14.69],
+                            borderColor: '#ef4444', 
+                            borderWidth: 2,
+                            borderDash: [5, 5], 
+                            fill: false,
+                            pointRadius: 0, 
+                            tension: 0
+                        },
+                        {
+                            type: 'bar',
+                            label: 'Cycle Time Aktual (Sec)',
+                            data: [12.5, 15.2, 13.4],
+                            backgroundColor: '#f97316', 
+                            borderRadius: 4,
+                            barPercentage: 0.6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                boxWidth: 8,
+                                font: { size: 12 }
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Waktu (Detik)',
+                                font: { size: 11 }
+                            },
+                            grid: { borderDash: [2, 2] }
+                        },
+                        x: {
+                            grid: { display: false } 
+                        }
+                    }
+                }
+            });
+        });
+
+        // --- 4. FETCH DATA DARI DATABASE UNTUK TABEL ---
+async function muatDataTabel() {
+    const tableBody = document.getElementById('tableBody');
+    tableBody.innerHTML = '<tr><td colspan="11" class="text-center py-4 text-gray-500">Memuat data dari database...</td></tr>';
+
+    try {
+        const response = await fetch('/api/produksi', {
+            method: 'GET',
+            headers: {
+                'User-ID': 'KARYAWAN-001' // Agar lolos authMiddleware
+            }
+        });
+
+        if (!response.ok) throw new Error('Gagal mengambil data');
+        
+        const data = await response.json();
+        tableBody.innerHTML = ''; // Bersihkan loading
+
+        if (data.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="11" class="text-center py-4 text-gray-500">Belum ada data di database.</td></tr>';
+            return;
+        }
+
+        // Looping data dan masukkan ke tabel
+        data.forEach(item => {
+            let ct = parseFloat(item.ct) || 0;
+            let allowanceRaw = item.allowance !== undefined ? parseFloat(item.allowance) : 15;
+            let allowance = allowanceRaw / 100;
+            let ctAllow = ct + (ct * allowance);
+            
+            let targetHourInput = parseFloat(document.getElementById('targetQty').value);
+            let targetHour = parseFloat(item.targetHour) || (!isNaN(targetHourInput) ? targetHourInput : 240);
+            
+            let theoriticalMp = targetHour > 0 ? ctAllow / (3600 / targetHour) : 0;
+            
+            let balancedMp = 'NA';
+            if (theoriticalMp > 0) {
+                if (theoriticalMp < 1) {
+                    balancedMp = 1;
+                } else {
+                    let mod = theoriticalMp % 1;
+                    balancedMp = mod >= 0.5 ? Math.ceil(theoriticalMp) : Math.floor(theoriticalMp);
+                }
+            }
+            
+            let machineType = item.machineType || item.machine || '';
+            let machineQty = balancedMp !== 'NA' ? balancedMp : 0;
+
+            const row = `
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-4 py-3 text-xs text-gray-800 whitespace-nowrap">${item.model || ''}</td>
+                    <td class="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">${item.area || ''}</td>
+                    <td class="px-4 py-3 text-xs text-gray-600 min-w-[200px]">${item.process || ''}</td>
+                    <td class="px-4 py-3 text-xs text-right text-gray-800 font-semibold">${ct.toFixed(2)}</td>
+                    <td class="px-4 py-3 text-xs text-right text-gray-600">${allowanceRaw}%</td>
+                    <td class="px-4 py-3 text-xs text-right text-orange-600 font-semibold">${ctAllow.toFixed(2)}</td>
+                    <td class="px-4 py-3 text-xs text-right text-gray-800">${targetHour}</td>
+                    <td class="px-4 py-3 text-xs text-center text-blue-600">${theoriticalMp.toFixed(2)}</td>
+                    <td class="px-4 py-3 text-xs text-center font-bold text-gray-800">${balancedMp}</td>
+                    <td class="px-4 py-3 text-xs text-gray-800 whitespace-nowrap">${machineType}</td>
+                    <td class="px-4 py-3 text-xs text-center font-bold text-gray-800">${machineQty}</td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+
+    } catch (error) {
+        console.error('Error:', error);
+        tableBody.innerHTML = '<tr><td colspan="11" class="text-center py-4 text-red-500">Gagal terhubung ke server.</td></tr>';
+    }
+}
+
+// Jalankan fungsi saat halaman pertama kali dibuka
+document.addEventListener('DOMContentLoaded', muatDataTabel);
+    </script>
+</body>
+</html>
