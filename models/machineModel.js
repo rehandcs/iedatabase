@@ -23,14 +23,25 @@ const MachineModel = {
     },
 
     // Fungsi untuk POST (menyimpan data dari input.html)
+    // Fungsi untuk POST (menyimpan data dari input.html)
     tambahDataProduksi: async (data) => {
-        console.log(`[MODEL] Menyimpan data mesin '${data.machine}' ke database...`);
+        console.log(`[MODEL] Menyimpan data mesin '${data.machineType}' ke database...`);
         try {
             const queryText = `
-                INSERT INTO production_data (model, area, process, machine, ct, workers, remark) 
-                VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *
+                INSERT INTO production_data (model, area, sub_area, process, machine_type, cycle_time, allowance, target_hour) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
             `;
-            const values = [data.model, data.area, data.process, data.machine, data.ct, data.workers, data.remark];
+            // Pastikan penamaan properti objek data ini selaras dengan JSON yang dikirim Frontend (di index.html/input.html)
+            const values = [
+                data.model, 
+                data.area, 
+                data.subArea, 
+                data.process, 
+                data.machineType, 
+                data.ct, 
+                data.allowance, 
+                data.targetHour
+            ];
             
             const result = await pool.query(queryText, values);
             return result.rows[0];

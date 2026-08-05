@@ -36,28 +36,29 @@ exports.hitungTargetMesin = async (req, res) => {
 };
 
 // Handler untuk POST /api/produksi (Dari input.html)
+// Handler untuk POST /api/produksi (Dari input.html)
 exports.simpanDataProduksi = async (req, res) => {
     console.log(`[CONTROLLER] Menerima data produksi baru...`);
     
     try {
         const dataBaru = req.body;
         
-        // Validasi input sederhana
-        if(!dataBaru.model || !dataBaru.machine || !dataBaru.ct) {
-            return res.status(400).json({ error: 'Data penting (Model, Mesin, CT) tidak lengkap!' });
+        // Validasi input sederhana disesuaikan dengan key dari Frontend JSON
+        if(!dataBaru.model || !dataBaru.machineType || !dataBaru.ct || !dataBaru.targetHour) {
+            return res.status(400).json({ error: 'Data penting (Model, Machine Type, CT, Target Hour) tidak lengkap!' });
         }
 
         const hasilInsert = await MachineModel.tambahDataProduksi(dataBaru);
         
         res.status(201).json({
-            message: `Data mesin ${hasilInsert.machine} berhasil disimpan.`,
+            message: `Data mesin ${hasilInsert.machine_type} berhasil disimpan.`,
             data: hasilInsert
         });
     } catch (error) {
         // Cek jika errornya adalah karena nama mesin duplicate di PostgreSQL (kode error: 23505)
         if (error.code === '23505') {
-            console.warn(`[CONTROLLER] Duplikat data: Mesin ${req.body.machine} sudah ada.`);
-            return res.status(409).json({ error: `Mesin dengan nama '${req.body.machine}' sudah terdaftar!` });
+            console.warn(`[CONTROLLER] Duplikat data: Mesin ${req.body.machineType} sudah ada.`);
+            return res.status(409).json({ error: `Mesin dengan nama '${req.body.machineType}' sudah terdaftar!` });
         }
 
         console.error('[CONTROLLER] Error di simpanDataProduksi:', error);
